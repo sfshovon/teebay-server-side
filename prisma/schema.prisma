@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id                 Int          @id @default(autoincrement())
+  first_name         String
+  last_name          String
+  address            String
+  email              String       @unique
+  password           String
+  phone_number       String
+  created_products   products[]   @relation("created_by")
+  bought_products    products[]   @relation("bought_by")
+  rented_products    rentInfo[]   @relation("rented_by")
+}   
+
+model products {
+  id                 Int           @id @default(autoincrement())
+  title              String
+  categories         String
+  description        String
+  product_price      Decimal       @db.Decimal
+  rent_price         Decimal       @db.Decimal
+  rent_type          String
+  date_posted        String
+  views_count        Int
+  created_by_id      Int
+  created_by         users         @relation("created_by", fields: [created_by_id], references: [id])
+  rent_info          rentInfo[]    @relation("rent_info")
+  bought_by          users[]       @relation("bought_by")
+}         
+
+model rentInfo {
+  id                 Int           @id @default(autoincrement())
+  product_id         Int
+  product            products      @relation("rent_info", fields: [product_id], references: [id])
+  rented_by_id       Int
+  rented_by          users         @relation("rented_by", fields: [rented_by_id], references: [id])
+  rent_start_date    String
+  rent_finish_date   String
+}
